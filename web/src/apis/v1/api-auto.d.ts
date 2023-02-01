@@ -5,6 +5,7 @@ declare namespace Definitions {
     websocket?: boolean;
     methods?: string[];
     code?: string /* The source code of the function */;
+    tags?: string[];
   };
 
   export type UpdateFunctionDto = {
@@ -12,6 +13,7 @@ declare namespace Definitions {
     websocket?: boolean;
     methods?: string[];
     code?: string /* The source code of the function */;
+    tags?: string[];
   };
 
   export type CompileFunctionDto = {
@@ -31,9 +33,19 @@ declare namespace Definitions {
     state?: string;
   };
 
-  export type CreateWebsiteDto = {};
+  export type CreateEnvironmentDto = {
+    name?: string;
+    value?: string;
+  };
 
-  export type UpdateWebsiteDto = {};
+  export type CreateBucketDto = {
+    shortName?: string /* The short name of the bucket which not contain the appid */;
+    policy?: string;
+  };
+
+  export type UpdateBucketDto = {
+    policy?: string;
+  };
 
   export type CreateCollectionDto = {
     name?: string;
@@ -46,22 +58,32 @@ declare namespace Definitions {
 
   export type CreatePolicyDto = {
     name?: string;
-    rules?: string;
   };
 
   export type UpdatePolicyDto = {
-    rules?: string;
+    injector?: string;
   };
 
-  export type CreateBucketDto = {
-    shortName?: string /* The short name of the bucket which not contain the appid */;
-    policy?: string;
-    storage?: string /* The storage capacity of the bucket: &#34;1Gi&#34;, &#34;0.5Gi&#34;, &#34;100Gi&#34; */;
+  export type CreatePolicyRuleDto = {
+    collectionName?: string;
+    value?: string;
   };
 
-  export type UpdateBucketDto = {
-    policy?: string;
-    storage?: string /* The storage capacity of the bucket: &#34;1Gi&#34;, &#34;0.5Gi&#34;, &#34;100Gi&#34; */;
+  export type UpdatePolicyRuleDto = {
+    value?: string;
+  };
+
+  export type CreateWebsiteDto = {};
+
+  export type UpdateWebsiteDto = {};
+
+  export type Pat2TokenDto = {
+    pat?: string /* PAT */;
+  };
+
+  export type CreatePATDto = {
+    name?: string;
+    expiresIn?: number;
   };
 
   export type CreateTriggerDto = {
@@ -72,23 +94,7 @@ declare namespace Definitions {
 }
 
 declare namespace Paths {
-  namespace AppControllerGetRegions {
-    export type QueryParameters = any;
-
-    export type BodyParameters = any;
-
-    export type Responses = any;
-  }
-
   namespace AppControllerGetRuntimes {
-    export type QueryParameters = any;
-
-    export type BodyParameters = any;
-
-    export type Responses = any;
-  }
-
-  namespace AppControllerGetBundles {
     export type QueryParameters = any;
 
     export type BodyParameters = any;
@@ -184,23 +190,15 @@ declare namespace Paths {
     export type Responses = any;
   }
 
-  namespace WebsitesControllerCreate {
+  namespace EnvironmentVariableControllerAdd {
     export type QueryParameters = any;
 
-    export type BodyParameters = Definitions.CreateWebsiteDto;
+    export type BodyParameters = Definitions.CreateEnvironmentDto;
 
     export type Responses = any;
   }
 
-  namespace WebsitesControllerFindAll {
-    export type QueryParameters = any;
-
-    export type BodyParameters = any;
-
-    export type Responses = any;
-  }
-
-  namespace WebsitesControllerFindOne {
+  namespace EnvironmentVariableControllerGet {
     export type QueryParameters = any;
 
     export type BodyParameters = any;
@@ -208,15 +206,7 @@ declare namespace Paths {
     export type Responses = any;
   }
 
-  namespace WebsitesControllerUpdate {
-    export type QueryParameters = any;
-
-    export type BodyParameters = Definitions.UpdateWebsiteDto;
-
-    export type Responses = any;
-  }
-
-  namespace WebsitesControllerRemove {
+  namespace EnvironmentVariableControllerDelete {
     export type QueryParameters = any;
 
     export type BodyParameters = any;
@@ -224,7 +214,15 @@ declare namespace Paths {
     export type Responses = any;
   }
 
-  namespace AuthControllerGetSigninUrl {
+  namespace BucketControllerCreate {
+    export type QueryParameters = any;
+
+    export type BodyParameters = Definitions.CreateBucketDto;
+
+    export type Responses = any;
+  }
+
+  namespace BucketControllerFindAll {
     export type QueryParameters = any;
 
     export type BodyParameters = any;
@@ -232,7 +230,7 @@ declare namespace Paths {
     export type Responses = any;
   }
 
-  namespace AuthControllerGetSignupUrl {
+  namespace BucketControllerFindOne {
     export type QueryParameters = any;
 
     export type BodyParameters = any;
@@ -240,7 +238,15 @@ declare namespace Paths {
     export type Responses = any;
   }
 
-  namespace AuthControllerCode2token {
+  namespace BucketControllerUpdate {
+    export type QueryParameters = any;
+
+    export type BodyParameters = Definitions.UpdateBucketDto;
+
+    export type Responses = any;
+  }
+
+  namespace BucketControllerRemove {
     export type QueryParameters = any;
 
     export type BodyParameters = any;
@@ -248,7 +254,7 @@ declare namespace Paths {
     export type Responses = any;
   }
 
-  namespace AuthControllerGetProfile {
+  namespace RegionControllerGetRegions {
     export type QueryParameters = any;
 
     export type BodyParameters = any;
@@ -336,23 +342,15 @@ declare namespace Paths {
     export type Responses = any;
   }
 
-  namespace BucketControllerCreate {
+  namespace PolicyRuleControllerCreate {
     export type QueryParameters = any;
 
-    export type BodyParameters = Definitions.CreateBucketDto;
+    export type BodyParameters = Definitions.CreatePolicyRuleDto;
 
     export type Responses = any;
   }
 
-  namespace BucketControllerFindAll {
-    export type QueryParameters = any;
-
-    export type BodyParameters = any;
-
-    export type Responses = any;
-  }
-
-  namespace BucketControllerFindOne {
+  namespace PolicyRuleControllerFindAll {
     export type QueryParameters = any;
 
     export type BodyParameters = any;
@@ -360,15 +358,119 @@ declare namespace Paths {
     export type Responses = any;
   }
 
-  namespace BucketControllerUpdate {
+  namespace PolicyRuleControllerUpdate {
     export type QueryParameters = any;
 
-    export type BodyParameters = Definitions.UpdateBucketDto;
+    export type BodyParameters = Definitions.UpdatePolicyRuleDto;
 
     export type Responses = any;
   }
 
-  namespace BucketControllerRemove {
+  namespace PolicyRuleControllerRemove {
+    export type QueryParameters = any;
+
+    export type BodyParameters = any;
+
+    export type Responses = any;
+  }
+
+  namespace WebsitesControllerCreate {
+    export type QueryParameters = any;
+
+    export type BodyParameters = Definitions.CreateWebsiteDto;
+
+    export type Responses = any;
+  }
+
+  namespace WebsitesControllerFindAll {
+    export type QueryParameters = any;
+
+    export type BodyParameters = any;
+
+    export type Responses = any;
+  }
+
+  namespace WebsitesControllerFindOne {
+    export type QueryParameters = any;
+
+    export type BodyParameters = any;
+
+    export type Responses = any;
+  }
+
+  namespace WebsitesControllerUpdate {
+    export type QueryParameters = any;
+
+    export type BodyParameters = Definitions.UpdateWebsiteDto;
+
+    export type Responses = any;
+  }
+
+  namespace WebsitesControllerRemove {
+    export type QueryParameters = any;
+
+    export type BodyParameters = any;
+
+    export type Responses = any;
+  }
+
+  namespace AuthControllerGetSigninUrl {
+    export type QueryParameters = any;
+
+    export type BodyParameters = any;
+
+    export type Responses = any;
+  }
+
+  namespace AuthControllerGetSignupUrl {
+    export type QueryParameters = any;
+
+    export type BodyParameters = any;
+
+    export type Responses = any;
+  }
+
+  namespace AuthControllerCode2token {
+    export type QueryParameters = any;
+
+    export type BodyParameters = any;
+
+    export type Responses = any;
+  }
+
+  namespace AuthControllerPat2token {
+    export type QueryParameters = any;
+
+    export type BodyParameters = Definitions.Pat2TokenDto;
+
+    export type Responses = any;
+  }
+
+  namespace AuthControllerGetProfile {
+    export type QueryParameters = any;
+
+    export type BodyParameters = any;
+
+    export type Responses = any;
+  }
+
+  namespace PatControllerCreate {
+    export type QueryParameters = any;
+
+    export type BodyParameters = Definitions.CreatePATDto;
+
+    export type Responses = any;
+  }
+
+  namespace PatControllerFindAll {
+    export type QueryParameters = any;
+
+    export type BodyParameters = any;
+
+    export type Responses = any;
+  }
+
+  namespace PatControllerRemove {
     export type QueryParameters = any;
 
     export type BodyParameters = any;
@@ -385,6 +487,14 @@ declare namespace Paths {
   }
 
   namespace DependencyControllerAdd {
+    export type QueryParameters = any;
+
+    export type BodyParameters = any;
+
+    export type Responses = any;
+  }
+
+  namespace DependencyControllerUpdate {
     export type QueryParameters = any;
 
     export type BodyParameters = any;

@@ -16,10 +16,10 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 
-import IconWrap from "@/components/IconWrap";
-
 import { useBucketDeleteMutation } from "../../service";
-function DeleteBucketModal(props: { storage: any; onSuccessAction?: () => void }) {
+
+import { TBucket } from "@/apis/typing";
+function DeleteBucketModal(props: { storage: TBucket; onSuccessAction?: () => void }) {
   const { storage, onSuccessAction } = props;
 
   const bucketDeleteMutation = useBucketDeleteMutation();
@@ -37,8 +37,7 @@ function DeleteBucketModal(props: { storage: any; onSuccessAction?: () => void }
 
   return (
     <>
-      <IconWrap
-        tooltip="删除Bucket"
+      <div
         onClick={() => {
           reset();
           onOpen();
@@ -47,24 +46,28 @@ function DeleteBucketModal(props: { storage: any; onSuccessAction?: () => void }
           }, 0);
         }}
       >
-        <DeleteIcon fontSize={12} />
-      </IconWrap>
+        <div className="text-grayIron-600">
+          <div className="text-grayModern-900 w-[20px] h-[20px] text-center">
+            <DeleteIcon fontSize={12} />
+          </div>
+          {t("Delete")}
+        </div>
+      </div>
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>删除 storage</ModalHeader>
+          <ModalHeader>{t("StoragePanel.DeleteBucket")}</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <p className="mb-2">
-              当前操作将会永久删除云存储
-              <span className=" text-black mr-1 font-bold">{storage.metadata.name}</span>
-              ,无法撤销。
+              {t("StoragePanel.DeleteConfirm")}
+              <span className=" text-black mr-1 font-bold">{storage.name}</span>,{t("DeleteTip")}。
             </p>
             <p className="mb-4">
-              请输入云存储名称
-              <span className=" text-red-500 mr-1 font-bold">{storage.metadata.name}</span>
-              进行确定。
+              {t("StoragePanel.StorageNameTip")}
+              <span className=" text-red-500 mx-1 font-bold">{storage.name}</span>
+              {t("ToConfirm")}。
             </p>
             <FormControl>
               <Input
@@ -72,7 +75,7 @@ function DeleteBucketModal(props: { storage: any; onSuccessAction?: () => void }
                   required: "name is required",
                 })}
                 id="name"
-                placeholder={storage?.metadata.name}
+                placeholder={storage?.name}
                 variant="filled"
               />
               <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
@@ -80,17 +83,11 @@ function DeleteBucketModal(props: { storage: any; onSuccessAction?: () => void }
           </ModalBody>
 
           <ModalFooter>
-            <Button mr={3} onClick={onClose}>
-              {t("Common.Dialog.Cancel")}
-            </Button>
             <Button
               colorScheme="red"
               onClick={handleSubmit(async (data) => {
-                if (data.name === storage.metadata.name) {
-                  const res = await bucketDeleteMutation.mutateAsync({
-                    name: storage.metadata.name,
-                    ...storage,
-                  });
+                if (data.name === storage.name) {
+                  const res = await bucketDeleteMutation.mutateAsync(storage);
                   if (!res.error) {
                     onSuccessAction && onSuccessAction();
                     onClose();
@@ -98,7 +95,7 @@ function DeleteBucketModal(props: { storage: any; onSuccessAction?: () => void }
                 }
               })}
             >
-              {t("Common.Dialog.Confirm")}
+              {t("Confirm")}
             </Button>
           </ModalFooter>
         </ModalContent>

@@ -17,8 +17,12 @@ monaco?.editor.defineTheme("JsonEditorTheme", {
   },
 });
 
-function JsonEditor(props: { value: string; onChange?: (value: string | undefined) => void }) {
-  const { value, onChange } = props;
+function JsonEditor(props: {
+  value: string;
+  height?: string;
+  onChange?: (value: string | undefined) => void;
+}) {
+  const { value, onChange, height = "95%" } = props;
 
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>();
   const subscriptionRef = useRef<monaco.IDisposable | undefined>(undefined);
@@ -36,7 +40,7 @@ function JsonEditor(props: { value: string; onChange?: (value: string | undefine
   }, [onChange]);
 
   useEffect(() => {
-    if (monacoEl && editorRef.current) {
+    if (monacoEl && editorRef.current && value !== editorRef.current?.getValue()) {
       editorRef.current?.getModel()?.setValue(value);
     }
   }, [value]);
@@ -70,7 +74,7 @@ function JsonEditor(props: { value: string; onChange?: (value: string | undefine
     return () => {};
   }, [value]);
 
-  return <div style={{ height: "95%", width: "100%" }} ref={monacoEl}></div>;
+  return <div style={{ height: height, width: "100%" }} ref={monacoEl}></div>;
 }
 
 export default JsonEditor;

@@ -1,14 +1,12 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import SyntaxHighlighter from "react-syntax-highlighter";
-import { Search2Icon } from "@chakra-ui/icons";
 import {
   Button,
   Center,
   HStack,
   Input,
   InputGroup,
-  InputLeftElement,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -17,195 +15,187 @@ import {
   ModalHeader,
   ModalOverlay,
   Spinner,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
   useDisclosure,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
+import { t } from "i18next";
 
+import Content from "@/components/Content";
 import CopyText from "@/components/CopyText";
 import Pagination from "@/components/Pagination";
+import Panel from "@/components/Panel";
 import { formatDate } from "@/utils/format";
 import getPageInfo from "@/utils/getPageInfo";
 
 import { queryKeys } from "./service";
 
+import styles from "./index.module.scss";
+
+import { TLogItem } from "@/apis/typing";
 import { LogControllerGetLogs } from "@/apis/v1/apps";
 
-const DEFAULT_LIMIT = 20;
+const LIMIT_OPTIONS = [100, 150, 200];
 
-type TLog = {
-  data: string;
-  request_id: string;
+const DEFAULT_PAGE_INFO = {
+  page: 1,
+  limit: 100,
 };
 
 export default function LogsPage() {
   type FormData = {
     requestId: string;
     functionName: string;
+    limit: number;
+    page: number;
   };
 
-  const defaultValues = {};
-  const { handleSubmit, register, getValues } = useForm<FormData>({
-    defaultValues,
-  });
+  const { handleSubmit, register, getValues } = useForm<FormData>({});
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [detail, setDetail] = useState<TLog | undefined>(undefined);
+  const [detail, setDetail] = useState<TLogItem | undefined>(undefined);
 
-  const [queryData, setQueryData] = useState({
-    ...defaultValues,
-  });
+  const [queryData, setQueryData] = useState(DEFAULT_PAGE_INFO);
 
   const logListQuery = useQuery(
     [queryKeys.useLogsQuery, queryData],
     () => {
-      return LogControllerGetLogs({ ...queryData, limit: DEFAULT_LIMIT });
+      return LogControllerGetLogs({ ...queryData });
     },
     {
       keepPreviousData: true,
+      onSuccess(data: any) {
+        console.log(data);
+      },
     },
   );
 
   const submit = () => {
     setQueryData({
-      page: 1,
       ...getValues(),
+      ...DEFAULT_PAGE_INFO,
     });
+    setTimeout(() => {
+      logListQuery.refetch();
+    }, 100);
   };
 
   return (
-    <div className="px-4 pb-4 flex-1 flex flex-col h-full ">
-      <form
-        onSubmit={(event) => {
-          event?.preventDefault();
-          logListQuery.refetch();
-        }}
-      >
-        <div className="flex justify-between my-4">
-          <HStack spacing={2}>
-            <InputGroup width={400}>
-              <InputLeftElement
-                height={"10"}
-                pointerEvents="none"
-                children={<Search2Icon color="gray.300" />}
-              />
+    <Content>
+      <Panel className="h-full">
+        <form
+          onSubmit={(event) => {
+            event?.preventDefault();
+            logListQuery.refetch();
+          }}
+        >
+          <Panel.Header>
+            <HStack spacing={2}>
+              <InputGroup width={300}>
+                <Input
+                  borderRadius="4"
+                  size="sm"
+                  placeholder="Request ID"
+                  {...register("requestId")}
+                />
+              </InputGroup>
+
               <Input
-                borderRadius="4"
-                placeholder="Request ID"
+                width={200}
+                size="sm"
+                placeholder={t("FunctionPanel.FunctionName").toString()}
                 bg="white"
-                {...register("requestId")}
+                {...register("functionName")}
               />
-            </InputGroup>
 
-            <Input width={200} placeholder="函数名" bg="white" {...register("functionName")} />
+              <Button
+                size="sm"
+                py={4}
+                px={6}
+                type={"submit"}
+                onClick={handleSubmit(submit)}
+                isLoading={logListQuery.isFetching}
+              >
+                {t("Search")}
+              </Button>
+            </HStack>
+            <Pagination
+              options={LIMIT_OPTIONS}
+              values={getPageInfo(logListQuery.data?.data)}
+              onChange={(values) => {
+                setQueryData({
+                  ...values,
+                  ...getValues(),
+                });
+              }}
+            />
+          </Panel.Header>
+        </form>
+        <div className="py-1 rounded-md h-full relative" style={{ paddingBottom: 100 }}>
+          {logListQuery.isFetching ? (
+            <Center className="opacity-60 bg-white-200 absolute left-0 right-0 top-0 bottom-0 z-10">
+              <Spinner size={"lg"} />
+            </Center>
+          ) : null}
+          <div className="overflow-y-auto h-full mb-4 ">
+            {logListQuery.data?.data?.list.map((item: TLogItem) => {
+              return (
+                <div key={item._id} className=" h-[22px] font-mono overflow-hidden">
+                  <span className="mr-2 text-grayIron-600 float-left">
+                    [{formatDate(item.created_at, "YYYY-MM-DD HH:mm:ss")}]
+                  </span>
 
-            <Button
-              px={9}
-              type={"submit"}
-              colorScheme={"green"}
-              onClick={handleSubmit(submit)}
-              isLoading={logListQuery.isFetching}
-            >
-              搜索
-            </Button>
-          </HStack>
-          <Pagination
-            values={getPageInfo(logListQuery.data?.data)}
-            onChange={(values) => {
-              setQueryData({
-                ...values,
-                ...getValues(),
-              });
-            }}
-          />
+                  <CopyText text={item.request_id} className="mr-2 text-primary-600 float-left">
+                    <span>{item.request_id.substring(0, 8)}</span>
+                  </CopyText>
+                  <CopyText text={item.func} className="mr-2 w-[100px] text-purple-700 float-left">
+                    <span>{item.func}</span>
+                  </CopyText>
+                  <div
+                    className=" overflow-hidden mr-4"
+                    onClick={() => {
+                      setDetail(item);
+                      onOpen();
+                    }}
+                  >
+                    <pre className="hover:text-blue-700 hover:underline max-h-[20px] overflow-hidden cursor-pointer whitespace-nowrap text-ellipsis">
+                      {item.data.substring(0, 200)}
+                    </pre>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </form>
-      <div className="px-4 py-1 rounded-md h-full relative border " style={{ paddingBottom: 100 }}>
-        {logListQuery.isFetching ? (
-          <Center className="opacity-60 bg-white absolute left-0 right-0 top-0 bottom-0 z-10">
-            <Spinner size={"lg"} />
-          </Center>
-        ) : null}
-        <div className="overflow-y-auto h-full mb-4">
-          <TableContainer minH={"400px"}>
-            <Table variant="simple">
-              <Thead>
-                <Tr>
-                  <Th width={"200px"}>时间</Th>
-                  <Th width={"200px"}>Request ID</Th>
-                  <Th>函数名</Th>
-                  <Th>Content</Th>
-                  <Th>操作</Th>
-                </Tr>
-              </Thead>
 
-              <Tbody className="relative font-mono">
-                {logListQuery.data?.data?.list.map((item: any) => {
-                  return (
-                    <Tr key={item._id} _hover={{ bgColor: "#efefef" }}>
-                      <Td width={"180px"} className="text-slate-500 ">
-                        [{formatDate(item.created_at, "YYYY-MM-DD HH:mm:ss")}]
-                      </Td>
-                      <Td width={"200px"}>
-                        <CopyText text={item.request_id}>
-                          <span>{item.request_id}</span>
-                        </CopyText>
-                      </Td>
-                      <Td>
-                        <CopyText text={item.func}>
-                          <span>{item.func}</span>
-                        </CopyText>
-                      </Td>
-                      <Td maxWidth={"300px"}>
-                        <pre className="text-green-700 max-h-[20px] overflow-hidden">
-                          {item.data}
-                        </pre>
-                      </Td>
-                      <Td width={"100px"}>
-                        <Button
-                          variant={"link"}
-                          size="xs"
-                          colorScheme={"blue"}
-                          onClick={() => {
-                            setDetail(item);
-                            onOpen();
-                          }}
-                        >
-                          查看
-                        </Button>
-                      </Td>
-                    </Tr>
-                  );
-                })}
-              </Tbody>
-            </Table>
-          </TableContainer>
-        </div>
-      </div>
-
-      <Modal onClose={onClose} isOpen={isOpen} scrollBehavior={"inside"} size="4xl">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
-            <span className="font-normal font-mono">Request ID: {detail?.request_id}</span>
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <SyntaxHighlighter language="json" customStyle={{ background: "#fff" }}>
-              {detail?.data || ""}
-            </SyntaxHighlighter>
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={onClose}>关闭</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </div>
+        <Modal onClose={onClose} isOpen={isOpen} scrollBehavior={"inside"} size="4xl">
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>{t("LogPanel.Detail")}</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <div>
+                <span className={styles.primaryText}>Time: </span>
+                {formatDate(detail?.created_at, "YYYY-MM-DD HH:mm:ss")}
+              </div>
+              <div>
+                <span className={styles.primaryText}>Request ID: </span>
+                {detail?.request_id}
+              </div>
+              <div>
+                <span className={styles.primaryText}>Function: </span>
+                {detail?.func}
+              </div>
+              <span className={styles.primaryText}>Content: </span>
+              <SyntaxHighlighter language="json" customStyle={{ background: "#fff" }}>
+                {detail?.data || ""}
+              </SyntaxHighlighter>
+            </ModalBody>
+            <ModalFooter>
+              <Button onClick={onClose}>{t("Close")}</Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      </Panel>
+    </Content>
   );
 }

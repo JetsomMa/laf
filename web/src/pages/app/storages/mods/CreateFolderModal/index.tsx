@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { AiOutlineFolderAdd } from "react-icons/ai";
 import {
   Button,
   FormControl,
@@ -30,6 +31,8 @@ function CreateModal({ onCreateSuccess }: { onCreateSuccess: () => void }) {
     <>
       <Button
         size="xs"
+        variant="textGhost"
+        leftIcon={<AiOutlineFolderAdd fontSize={22} className="text-grayModern-500" />}
         disabled={currentStorage === undefined}
         onClick={() => {
           onOpen();
@@ -39,49 +42,43 @@ function CreateModal({ onCreateSuccess }: { onCreateSuccess: () => void }) {
           }, 0);
         }}
       >
-        {t("StoragePanel.Create") + t("StoragePanel.Folder")}
+        {t("Create") + t("StoragePanel.Folder")}
       </Button>
 
       <Modal isOpen={isOpen} onClose={onClose} size="lg">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader> {t("StoragePanel.Create") + t("StoragePanel.Folder")}</ModalHeader>
+          <ModalHeader> {t("Create") + t("StoragePanel.Folder")}</ModalHeader>
           <ModalCloseButton />
 
           <ModalBody pb={6}>
             <VStack spacing={6} align="flex-start">
               <FormControl>
-                <FormLabel htmlFor="prefix">文件夹名称</FormLabel>
+                <FormLabel htmlFor="prefix">{t("StoragePanel.FolderName")}</FormLabel>
                 <Input
                   {...register("prefix", {
                     required: true,
                   })}
                   variant="filled"
+                  placeholder={t("StoragePanel.NameTip").toString()}
                 />
               </FormControl>
             </VStack>
           </ModalBody>
 
           <ModalFooter>
-            <Button mr={3} onClick={onClose}>
-              {t("Common.Dialog.Cancel")}
-            </Button>
             <Button
-              colorScheme="blue"
               type="submit"
               onClick={handleSubmit(async (value) => {
-                await uploadFile(
-                  currentStorage?.metadata.name!,
-                  prefix + value.prefix + "/",
-                  null,
-                  { contentType: "folder" },
-                );
+                await uploadFile(currentStorage?.name!, prefix + value.prefix + "/", null, {
+                  contentType: "folder",
+                });
                 onCreateSuccess();
                 // setPrefix(prefix + value.prefix + "/");
                 onClose();
               })}
             >
-              {t("Common.Dialog.Confirm")}
+              {t("Confirm")}
             </Button>
           </ModalFooter>
         </ModalContent>

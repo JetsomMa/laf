@@ -16,15 +16,11 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 
-import IconWrap from "@/components/IconWrap";
-
 import { useDeleteDBMutation } from "../../service";
-
 function DeleteCollectionModal(props: { database: any }) {
   const { database } = props;
   const { t } = useTranslation();
   const { isOpen, onOpen, onClose } = useDisclosure();
-
   const deleteDBMutation = useDeleteDBMutation({
     onSuccess() {
       onClose();
@@ -43,8 +39,7 @@ function DeleteCollectionModal(props: { database: any }) {
 
   return (
     <>
-      <IconWrap
-        tooltip="删除"
+      <div
         onClick={() => {
           reset();
           onOpen();
@@ -53,23 +48,27 @@ function DeleteCollectionModal(props: { database: any }) {
           }, 0);
         }}
       >
-        <DeleteIcon fontSize={12} />
-      </IconWrap>
+        <div className="text-grayModern-900 w-[20px] h-[20px] text-center">
+          <DeleteIcon fontSize={12} />
+        </div>
+        <div className="text-grayIron-600">{t("Delete")}</div>
+      </div>
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>删除集合</ModalHeader>
+          <ModalHeader>{t("CollectionPanel.DeleteCollection")}</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <p className="mb-2">
-              当前操作将永久删除集合
-              <span className=" text-black mr-1 font-bold">{database.name}</span>
-              ,无法撤销。
+              {t("CollectionPanel.DeleteCollectionTip")}
+              <span className=" text-black mx-1 font-bold">{database.name}</span>
+              {t("DeleteTip")}。
             </p>
             <p className="mb-4">
-              请输入集合名称 <span className=" text-red-500 mr-1 font-bold">{database.name}</span>
-              进行确定。
+              {t("CollectionPanel.InputName")}
+              <span className=" text-red-500 mx-1 font-bold">{database.name}</span>
+              {t("ToConfirm")}。
             </p>
             <FormControl>
               <Input
@@ -85,9 +84,6 @@ function DeleteCollectionModal(props: { database: any }) {
           </ModalBody>
 
           <ModalFooter>
-            <Button mr={3} onClick={onClose}>
-              {t("Common.Dialog.Cancel")}
-            </Button>
             <Button
               colorScheme="red"
               onClick={handleSubmit(async (data) => {
@@ -96,7 +92,7 @@ function DeleteCollectionModal(props: { database: any }) {
                 }
               })}
             >
-              {t("Common.Dialog.Confirm")}
+              {t("Confirm")}
             </Button>
           </ModalFooter>
         </ModalContent>

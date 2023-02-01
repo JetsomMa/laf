@@ -5,26 +5,23 @@ import { immer } from "zustand/middleware/immer";
 
 import { APP_PHASE_STATUS } from "@/constants";
 
-import { TApplication } from "@/apis/typing";
+import { TApplication, TUserInfo } from "@/apis/typing";
 import { ApplicationControllerUpdate } from "@/apis/v1/applications";
-import { AppControllerGetBundles } from "@/apis/v1/bundles";
 import { AuthControllerGetSigninUrl } from "@/apis/v1/login";
 import { AuthControllerGetProfile } from "@/apis/v1/profile";
-import { AppControllerGetRegions } from "@/apis/v1/regions";
+import { RegionControllerGetRegions } from "@/apis/v1/regions";
 import { AppControllerGetRuntimes } from "@/apis/v1/runtimes";
 
 const { toast } = createStandaloneToast();
 
 type State = {
-  userInfo: any;
+  userInfo: TUserInfo | undefined;
   loading: boolean;
   runtimes?: any[];
   regions?: any[];
-  bundles?: any[];
   currentApp: TApplication | undefined;
   setCurrentApp(app: TApplication): void;
   init(appid?: string): void;
-
   restartCurrentApp(): void;
 
   currentPageId: string | undefined;
@@ -40,7 +37,7 @@ type State = {
 const useGlobalStore = create<State>()(
   devtools(
     immer((set, get) => ({
-      userInfo: {},
+      userInfo: undefined,
 
       currentApp: undefined,
 
@@ -61,21 +58,19 @@ const useGlobalStore = create<State>()(
 
       init: async () => {
         const userInfo = get().userInfo;
-        if (userInfo.id) {
+        if (userInfo?.id) {
           return;
         }
 
         const userInfoRes = await AuthControllerGetProfile({});
 
         const runtimesRes = await AppControllerGetRuntimes({});
-        const bundlesRes = await AppControllerGetBundles({});
-        const regionsRes = await AppControllerGetRegions({});
+        const regionsRes = await RegionControllerGetRegions({});
 
         set((state) => {
           state.userInfo = userInfoRes.data;
           state.loading = false;
           state.runtimes = runtimesRes.data;
-          state.bundles = bundlesRes.data;
           state.regions = regionsRes.data;
         });
       },
@@ -114,7 +109,7 @@ const useGlobalStore = create<State>()(
           position: "top",
           title: text,
           status: "success",
-          duration: 1000,
+          duration: 500,
           containerStyle: {
             maxWidth: "100%",
             minWidth: "100px",

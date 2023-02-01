@@ -3,9 +3,7 @@ import { Outlet, useParams } from "react-router-dom";
 import { Badge, Center, Spinner } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 
-import { APP_PHASE_STATUS, Pages, SmallNavHeight } from "@/constants/index";
-
-import Header from "./Header";
+import { APP_PHASE_STATUS, Pages } from "@/constants/index";
 
 import { ApplicationControllerFindOne } from "@/apis/v1/applications";
 import useGlobalStore from "@/pages/globalStore";
@@ -42,11 +40,9 @@ export default function FunctionLayout() {
 
   return (
     <div>
-      <Header size="sm" />
       <div
-        className="bg-white"
         style={{
-          height: `calc(100vh - ${SmallNavHeight}px)`,
+          height: "100vh",
           overflow: "hidden",
           position: "relative",
         }}
@@ -58,7 +54,7 @@ export default function FunctionLayout() {
         ) : (
           <>
             {currentApp?.phase !== APP_PHASE_STATUS.Started ? (
-              <div className="absolute top-0 bottom-0 left-0 right-0 z-[999] flex flex-col justify-center items-center bg-white opacity-70 ">
+              <div className="absolute top-0 bottom-0 left-0 right-0 z-[999] flex flex-col justify-center items-center bg-lafWhite-200 opacity-70 ">
                 <Spinner
                   thickness="4px"
                   speed="0.65s"

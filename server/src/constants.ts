@@ -74,15 +74,40 @@ export class ServerConfig {
     }
   }
 
-  static get SERVER() {
-    return process.env.SERVER || 'http://localhost:3000'
+  static get API_SERVER_URL() {
+    return process.env.API_SERVER_URL || 'http://localhost:3000'
   }
 
-  /**
-   * The external endpoint of oss server
-   */
-  static get OSS_ENDPOINT() {
-    return process.env.OSS_ENDPOINT
+  static get DOMAIN() {
+    return process.env.DOMAIN || 'localhost'
+  }
+
+  static get APISIX_API_URL() {
+    return process.env.APISIX_API_URL
+  }
+
+  static get APISIX_API_KEY() {
+    return process.env.APISIX_API_KEY
+  }
+
+  static get MINIO_DOMAIN() {
+    return process.env.MINIO_DOMAIN
+  }
+
+  static get MINIO_EXTERNAL_ENDPOINT() {
+    return process.env.MINIO_EXTERNAL_ENDPOINT
+  }
+
+  static get MINIO_INTERNAL_ENDPOINT() {
+    return process.env.MINIO_INTERNAL_ENDPOINT
+  }
+
+  static get MINIO_ROOT_ACCESS_KEY() {
+    return process.env.MINIO_ROOT_ACCESS_KEY
+  }
+
+  static get MINIO_ROOT_SECRET_KEY() {
+    return process.env.MINIO_ROOT_SECRET_KEY
   }
 }
 
@@ -115,3 +140,8 @@ export const MB = 1024 * 1024
 export const GB = 1024 * MB
 
 export const APPLICATION_SECRET_KEY = 'SERVER_SECRET'
+
+export const MAX_FUNCTION_COUNT = 1000
+
+export const MINIO_COMMON_USER_GROUP = 'laf_owner_by_prefix_group'
+export const MINIO_COMMON_USER_POLICY = 'laf_owner_by_prefix'

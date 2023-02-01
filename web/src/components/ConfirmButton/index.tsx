@@ -2,6 +2,7 @@ import React from "react";
 import {
   AlertDialog,
   AlertDialogBody,
+  AlertDialogCloseButton,
   AlertDialogContent,
   AlertDialogFooter,
   AlertDialogHeader,
@@ -10,6 +11,7 @@ import {
   Button,
   useDisclosure,
 } from "@chakra-ui/react";
+import { t } from "i18next";
 
 interface ConfirmButtonProps {
   onSuccessAction: () => void;
@@ -31,7 +33,10 @@ const ConfirmButton = ({ onSuccessAction, headerText, bodyText, children }: Conf
   return (
     <>
       {React.cloneElement(children, {
-        onClick: onOpen,
+        onClick: (event: any) => {
+          event?.preventDefault();
+          onOpen();
+        },
       })}
 
       <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
@@ -40,16 +45,14 @@ const ConfirmButton = ({ onSuccessAction, headerText, bodyText, children }: Conf
           <AlertDialogHeader fontSize="lg" fontWeight="bold">
             {headerText}
           </AlertDialogHeader>
+          <AlertDialogCloseButton />
           <AlertDialogBody>
             <Box>{bodyText}</Box>
           </AlertDialogBody>
 
           <AlertDialogFooter>
-            <Button ref={cancelRef} onClick={onClose} className="mr-3">
-              Cancel
-            </Button>
             <Button colorScheme={"red"} onClick={onSubmit}>
-              删除
+              {t("Delete")}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

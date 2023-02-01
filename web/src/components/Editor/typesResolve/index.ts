@@ -7,7 +7,7 @@ import useGlobalStore from "@/pages/globalStore";
 
 async function loadPackageTypings(packageName: string) {
   const { currentApp } = useGlobalStore.getState();
-  const url = `//${currentApp?.gateway.status.appRoute.domain}`;
+  const url = `//${currentApp?.domain?.domain}`;
   const res = await axios({
     url: `${url}/typing/package?packageName=${packageName}`,
     method: "GET",
@@ -76,23 +76,25 @@ export class AutoImportTypings {
     if (!this.isLoaded("globals")) {
       this.loadDeclaration("globals");
     }
-    // if (!this.isLoaded("database-proxy")) {
-    //   this.loadDeclaration("database-proxy");
-    // }
-    // if (!this.isLoaded("database-ql")) {
-    //   this.loadDeclaration("database-ql");
-    // }
-    // if (!this.isLoaded("axios")) {
-    //   this.loadDeclaration("axios");
-    // }
-    // // if (!this.isLoaded('cloud-function-engine')) { this.loadDeclaration('cloud-function-engine') }
-    // if (!this.isLoaded("mongodb")) {
-    //   this.loadDeclaration("mongodb");
-    // }
-    // if (!this.isLoaded("@types/node")) {
-    //   this.loadDeclaration("@types/node");
-    // }
-    // if (!this.isLoaded('ws')) { this.loadDeclaration('ws') }
+    if (!this.isLoaded("database-proxy")) {
+      this.loadDeclaration("database-proxy");
+    }
+    if (!this.isLoaded("database-ql")) {
+      this.loadDeclaration("database-ql");
+    }
+    if (!this.isLoaded("axios")) {
+      this.loadDeclaration("axios");
+    }
+    // if (!this.isLoaded('cloud-function-engine')) { this.loadDeclaration('cloud-function-engine') }
+    if (!this.isLoaded("mongodb")) {
+      this.loadDeclaration("mongodb");
+    }
+    if (!this.isLoaded("@types/node")) {
+      this.loadDeclaration("@types/node");
+    }
+    if (!this.isLoaded("ws")) {
+      this.loadDeclaration("ws");
+    }
   }
 
   /**

@@ -2,9 +2,6 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Cron, CronExpression } from '@nestjs/schedule'
 import { ApplicationPhase, ApplicationState } from '@prisma/client'
 import { isConditionTrue } from '../utils/getter'
-import { DatabaseCoreService } from '../core/database.cr.service'
-import { GatewayCoreService } from '../core/gateway.cr.service'
-import { OSSUserCoreService } from '../core/oss-user.cr.service'
 import { PrismaService } from '../prisma.service'
 import { InstanceService } from './instance.service'
 
@@ -14,9 +11,6 @@ export class InstanceTaskService {
 
   constructor(
     private readonly instanceService: InstanceService,
-    private readonly databaseCore: DatabaseCoreService,
-    private readonly gatewayCore: GatewayCoreService,
-    private readonly ossCore: OSSUserCoreService,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -39,8 +33,7 @@ export class InstanceTaskService {
 
     for (const app of apps) {
       try {
-        const appid = app.appid
-        await this.instanceService.create(appid)
+        await this.instanceService.create(app)
 
         await this.prisma.application.updateMany({
           where: {
@@ -79,7 +72,7 @@ export class InstanceTaskService {
     for (const app of apps) {
       try {
         const appid = app.appid
-        const instance = await this.instanceService.get(appid)
+        const instance = await this.instanceService.get(app)
         const available = isConditionTrue(
           'Available',
           instance.deployment.status?.conditions,
@@ -129,8 +122,7 @@ export class InstanceTaskService {
 
     for (const app of apps) {
       try {
-        const appid = app.appid
-        await this.instanceService.remove(appid)
+        await this.instanceService.remove(app)
 
         await this.prisma.application.updateMany({
           where: {
@@ -167,7 +159,7 @@ export class InstanceTaskService {
     for (const app of apps) {
       try {
         const appid = app.appid
-        const instance = await this.instanceService.get(appid)
+        const instance = await this.instanceService.get(app)
         if (instance.deployment) continue
 
         // update application state
@@ -204,8 +196,7 @@ export class InstanceTaskService {
 
     for (const app of apps) {
       try {
-        const appid = app.appid
-        await this.instanceService.remove(appid)
+        await this.instanceService.remove(app)
 
         await this.prisma.application.updateMany({
           where: {
@@ -244,8 +235,7 @@ export class InstanceTaskService {
 
     for (const app of apps) {
       try {
-        const appid = app.appid
-        await this.instanceService.create(appid)
+        await this.instanceService.create(app)
 
         await this.prisma.application.updateMany({
           where: {

@@ -1,6 +1,30 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 
-import { formatHotKeyModifier } from "@/utils/format";
+const isWin = /windows/i.test(navigator.userAgent.toLowerCase());
+const MODIFY_KEY = {
+  // common meta key, support win & mac
+  metaKey: isWin ? "Control" : "Meta",
+  // shift key
+  shiftKey: "Shift",
+  // alt key
+  altKey: "Alt",
+  // control key
+  ctrlKey: "Control",
+};
+
+export function getDisplayString(str: string) {
+  return str.replace(/Meta/g, "⌘").replaceAll("Control", "Ctrl");
+}
+
+export const DEFAULT_SHORTCUTS = {
+  send_request: [`${MODIFY_KEY.metaKey}+s`, `${MODIFY_KEY.metaKey}+r`],
+  deploy: [`${MODIFY_KEY.metaKey}+p`],
+};
+
+export function getWhiteListKeys() {
+  return ["s", "r", "p"];
+}
+
 function useHotKey(
   keyMap: string[],
   trigger: () => void,
@@ -9,29 +33,23 @@ function useHotKey(
   } = {
     enabled: true,
   },
-) {
-  const pressKey = useRef<any>(null);
-  const timeout = useRef<any>(null);
-
+): { displayName: string } {
   const handleKeyDown = useCallback(
     (event: any) => {
-      if (event.repeat) {
+      if (getWhiteListKeys().indexOf(event.key) < 0) {
         return;
       }
-      if (keyMap.indexOf(event.key) > -1 && (event.ctrlKey || event.metaKey)) {
+
+      let _k: string[] = [];
+      event.metaKey && _k.push(MODIFY_KEY.metaKey);
+      event.ctrlKey && _k.push(MODIFY_KEY.ctrlKey);
+      event.shiftKey && _k.push(MODIFY_KEY.shiftKey);
+      event.altKey && _k.push(MODIFY_KEY.altKey);
+      _k.push(event.key);
+
+      if (keyMap.indexOf(_k.join("+")) >= 0) {
         event.preventDefault();
-        pressKey.current = event.key;
-        if (timeout.current === null) {
-          timeout.current = setTimeout(() => {
-            // trigger the event if there is no change within 100ms
-            if (pressKey.current === event.key) {
-              trigger();
-            }
-            clearTimeout(timeout.current);
-            timeout.current = null;
-            pressKey.current = null;
-          }, 100);
-        }
+        trigger();
       }
     },
     [keyMap, trigger],
@@ -49,15 +67,9 @@ function useHotKey(
     };
   }, [config?.enabled, handleKeyDown]);
 
-  // return shortcut key text ,if keyMap has more than two items will format [../..]
-  const res = `${formatHotKeyModifier()} + 
-      ${
-        keyMap.length > 1
-          ? "[" + keyMap.map((item) => item.toUpperCase()).join("/") + "]"
-          : keyMap[0].toUpperCase()
-      }`;
-
-  return res;
+  return {
+    displayName: getDisplayString(keyMap[0]),
+  };
 }
 
 export default useHotKey;

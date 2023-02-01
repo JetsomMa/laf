@@ -26,7 +26,7 @@ export const useBucketListQuery = (config?: { onSuccess: (data: any) => void }) 
     },
     {
       onSuccess: (data) => {
-        let number = formatCapacity(globalStore.currentApp?.oss.spec.capacity.storage || "");
+        let number = formatCapacity(String(globalStore.currentApp?.bundle.storageCapacity));
         if (data?.data?.items?.length) {
           data?.data?.items.forEach((item: any) => {
             number -= formatCapacity(item.spec.storage);
@@ -42,6 +42,7 @@ export const useBucketListQuery = (config?: { onSuccess: (data: any) => void }) 
 export const useBucketCreateMutation = (config?: { onSuccess: (data: any) => void }) => {
   const globalStore = useGlobalStore();
   const queryClient = useQueryClient();
+  const store = useStorageStore();
   return useMutation(
     (values: any) => {
       return BucketControllerCreate(values);
@@ -52,6 +53,7 @@ export const useBucketCreateMutation = (config?: { onSuccess: (data: any) => voi
           globalStore.showError(data.error);
         } else {
           await queryClient.invalidateQueries(queryKeys.useBucketListQuery);
+          store.setCurrentStorage(data.data);
         }
       },
     },

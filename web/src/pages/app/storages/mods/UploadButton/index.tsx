@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { CheckCircleIcon, ChevronDownIcon } from "@chakra-ui/icons";
+import { BiCloudUpload } from "react-icons/bi";
+import { CheckCircleIcon } from "@chakra-ui/icons";
 import {
   Button,
   Menu,
@@ -15,7 +16,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 
-import FileUpload from "@/components/FileUplaod";
+import FileUpload from "@/components/FileUpload";
 
 import useStorageStore from "../../store";
 
@@ -38,14 +39,15 @@ function UploadButton({ onUploadSuccess }: { onUploadSuccess: () => void }) {
     <div>
       <Menu placement="bottom-start">
         <MenuButton
-          size="xs"
+          size="sm"
+          variant="textGhost"
           as={Button}
-          rightIcon={<ChevronDownIcon />}
+          leftIcon={<BiCloudUpload fontSize={22} className="text-grayModern-500" />}
           disabled={currentStorage === undefined}
         >
           {t("StoragePanel.Upload")}
         </MenuButton>
-        <MenuList>
+        <MenuList minW={24}>
           <MenuItem
             onClick={() => {
               setUploadType("file");
@@ -53,7 +55,7 @@ function UploadButton({ onUploadSuccess }: { onUploadSuccess: () => void }) {
               onOpen();
             }}
           >
-            {t("StoragePanel.Upload") + t("StoragePanel.File")}
+            {t("StoragePanel.File")}
           </MenuItem>
           <MenuItem
             onClick={() => {
@@ -62,7 +64,7 @@ function UploadButton({ onUploadSuccess }: { onUploadSuccess: () => void }) {
               onOpen();
             }}
           >
-            {t("StoragePanel.Upload") + t("StoragePanel.Folder")}
+            {t("StoragePanel.Folder")}
           </MenuItem>
         </MenuList>
       </Menu>
@@ -90,7 +92,7 @@ function UploadButton({ onUploadSuccess }: { onUploadSuccess: () => void }) {
                 for (let i = 0; i < files.length; i++) {
                   const file = files[i];
                   const fileName = file.webkitRelativePath ? file.webkitRelativePath : file.name;
-                  await uploadFile(currentStorage?.metadata.name!, prefix + fileName, file, {
+                  await uploadFile(currentStorage?.name!, prefix + fileName, file, {
                     contentType: file.type,
                   });
                   setFileList((pre) => {
@@ -101,7 +103,7 @@ function UploadButton({ onUploadSuccess }: { onUploadSuccess: () => void }) {
                 }
                 onUploadSuccess();
                 onClose();
-                showSuccess("上传成功");
+                showSuccess(t("StoragePanel.Success"));
               }}
             />
             <div className="mt-2 max-h-40 overflow-auto">
